@@ -55,7 +55,7 @@ void* modem_init(int argc, char *argv[], uint dev_nbr, uint nbr_devices) {
  *  OutputSNR               : SNR in the analog output / digital input of this modem (dB)
  *  Output_RSSI_power_level : RSSI level (analog, dBm) sent to the modem digital
  */
-void modem_analog_rx(void *this, p2G4_radioparams_t *rx_radio_params, double *OutputSNR,double *Output_RSSI_power_level,
+void modem_analog_rx(void *this, p2G4_radioparamsv2_t *rx_radio_params, double *OutputSNR,double *Output_RSSI_power_level,
                      double *rx_powers, tx_l_c_t *txl_c, uint tx_nbr) {
 
   mo_magic_args_t *mo_st = (mo_magic_args_t *)this;
@@ -63,7 +63,7 @@ void modem_analog_rx(void *this, p2G4_radioparams_t *rx_radio_params, double *Ou
   //Trivial RSSI model: If a transmitted has the same center frequency as where the receiver is open,
   //we assume all its power is measured. Otherwise none.
   //Meaning, we ignore receiver filter and modulation shapes
-  p2G4_freq_t  rx_freq = rx_radio_params->center_freq;
+  p2G4_freq2_t rx_freq = rx_radio_params->center_freq;
   double acc_power = 4e-12; //-114dBm : Thermal noise floor for 1MHz @300K
   for (int i = 0; i < mo_st->nbr_devices ; i++ ) {
     if ( txl_c->used[i] ){ //For each active transmitter (including the desired one
@@ -103,7 +103,7 @@ uint32_t modem_digital_perf_ber(void *this, p2G4_modemdigparams_t *rx_modem_para
  *  SNR             : SNR level at the analog output as calculated by modem_analog_rx()
  *  tx_s            : Parameters of the transmission we are receiving (in case the sync. probability depends on any of them)
  */
-uint32_t modem_digital_perf_sync(void *this, p2G4_modemdigparams_t *rx_modem_params, double SNR, p2G4_txv2_t* tx_s) {
+uint32_t modem_digital_perf_sync(void *this, p2G4_modemdigparams_t *rx_modem_params, double SNR, p2G4_tx2v1_t* tx_s) {
   return  ((mo_magic_args_t*)this)->sync_prob;
 }
 
@@ -119,7 +119,7 @@ uint32_t modem_digital_perf_sync(void *this, p2G4_modemdigparams_t *rx_modem_par
  * outputs:
  *  RSSI  : RSSI "digital" value returned by this modem, following the c2G4_rssi_power_t format (16.16 signed value)
  */
-void modem_digital_RSSI(void *this, p2G4_radioparams_t *rx_radio_params, double RSSI_power_level,
+void modem_digital_RSSI(void *this, p2G4_radioparamsv2_t *rx_radio_params, double RSSI_power_level,
                         p2G4_rssi_power_t *RSSI) {
 
   *RSSI = p2G4_RSSI_value_from_dBm(RSSI_power_level);
